@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(ownerId) {
+      return isAuthenticated() && request.auth.uid == ownerId;
+    }
+    
+    function isMember(planId) {
+      return exists(/databases/$(database)/documents/learningPlans/$(planId)/members/$(request.auth.uid));
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update, delete: if isOwner(userId);
+    }
+    
+    // User Invitations collection (root level)
+    match /userInvitations/{invitationId} {
+      // Users can read invitations sent to their email
+      allow read: if isAuthenticated() && 
+        (resource.data.invitedEmail == request.auth.token.email || 
+         resource.data.invitedByUserId == request.auth.uid);
+      // Authenticated users can create invitations
+      allow create: if isAuthenticated();
+      // Users can update invitations sent to them
+      allow update: if isAuthenticated() && 
+        (resource.data.invitedEmail == request.auth.token.email || 
+         resource.data.invitedByUserId == request.auth.uid);
+      // Only creator can delete
+      allow delete: if isAuthenticated() && resource.data.invitedByUserId == request.auth.uid;
+    }
+    
+    // Learning Plans collection
+    match /learningPlans/{planId} {
+      allow read: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        isMember(planId)
+      );
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+      allow delete: if isOwner(resource.data.ownerId);
+      
+      // Members sub-collection
+      match /members/{memberId} {
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid ||
+          isMember(planId)
+        );
+        allow create: if isAuthenticated();
+        allow update: if isAuthenticated() && (
+          get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid ||
+          (resource.data.userId == request.auth.uid && request.resource.data.status in ['accepted', 'rejected'])
+        );
+        allow delete: if isAuthenticated() && 
+          get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid;
+      }
+      
+      // Weeks sub-collection
+      match /weeks/{weekId} {
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid ||
+          isMember(planId)
+        );
+        allow create, update, delete: if isAuthenticated() && 
+          get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid;
+        
+        // Tasks sub-collection
+        match /tasks/{taskId} {
+          allow read: if isAuthenticated() && (
+            get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid ||
+            isMember(planId)
+          );
+          allow create, delete: if isAuthenticated() && 
+            get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid;
+          allow update: if isAuthenticated() && (
+            get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid ||
+            isMember(planId)
+          );
+        }
+      }
+    }
+  }
+}
