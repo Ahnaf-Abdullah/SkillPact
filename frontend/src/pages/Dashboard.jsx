@@ -179,21 +179,21 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">SkillPact</h1>
-          <div className="flex items-center space-x-4">
+      <header className="bg-white shadow-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">SkillPact</h1>
+          <div className="flex items-center space-x-3">
             <button
               onClick={() => navigate('/profile')}
-              className="text-sm text-indigo-600 hover:text-indigo-800"
+              className="px-4 py-2 text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition duration-200"
             >
-              {currentUser?.displayName || currentUser?.email}
+              👤 {currentUser?.displayName || currentUser?.email}
             </button>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition duration-200"
             >
               Logout
             </button>
@@ -205,27 +205,31 @@ const Dashboard = () => {
         {/* Invitations Section */}
         {invitations.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Pending Invitations</h2>
-            <div className="bg-white shadow rounded-lg divide-y">
+            <div className="flex items-center space-x-2 mb-4">
+              <span className="text-2xl">✉️</span>
+              <h2 className="text-xl font-bold text-gray-900">Pending Invitations</h2>
+              <span className="px-2.5 py-0.5 text-xs font-semibold bg-indigo-100 text-indigo-700 rounded-full">{invitations.length}</span>
+            </div>
+            <div className="bg-white shadow-lg rounded-2xl divide-y border border-gray-200">
               {invitations.map((invitation) => (
-                <div key={invitation.invitationId} className="p-4 flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium text-gray-900">{invitation.planTitle}</h3>
-                    <p className="text-sm text-gray-600">{invitation.planDescription}</p>
-                    <p className="text-xs text-gray-500 mt-1">Invited by: {invitation.invitedBy}</p>
+                <div key={invitation.invitationId} className="p-5 flex justify-between items-center hover:bg-gray-50 transition duration-200">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 text-lg">{invitation.planTitle}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{invitation.planDescription}</p>
+                    <p className="text-xs text-gray-500 mt-2">📨 Invited by: <span className="font-medium">{invitation.invitedBy}</span></p>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 ml-4">
                     <button
                       onClick={() => handleAcceptInvitation(invitation.invitationId, invitation.planId)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                      className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 text-sm font-semibold shadow-md transition duration-200 transform hover:scale-105"
                     >
-                      Accept
+                      ✓ Accept
                     </button>
                     <button
                       onClick={() => handleRejectInvitation(invitation.invitationId)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+                      className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 text-sm font-semibold transition duration-200"
                     >
-                      Reject
+                      ✕ Reject
                     </button>
                   </div>
                 </div>
@@ -236,44 +240,54 @@ const Dashboard = () => {
 
         {/* Learning Plans Section */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">My Learning Plans</h2>
+          <div className="flex items-center space-x-2">
+            <span className="text-2xl">📚</span>
+            <h2 className="text-xl font-bold text-gray-900">My Learning Plans</h2>
+            <span className="px-2.5 py-0.5 text-xs font-semibold bg-purple-100 text-purple-700 rounded-full">{learningPlans.length}</span>
+          </div>
           <button
             onClick={() => navigate('/create-plan')}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 font-semibold shadow-lg transition duration-200 transform hover:scale-105"
           >
-            Create New Plan
+            ✨ Create New Plan
           </button>
         </div>
 
         {learningPlans.length === 0 ? (
-          <div className="bg-white shadow rounded-lg p-8 text-center">
-            <p className="text-gray-600">No learning plans yet. Create your first one!</p>
+          <div className="bg-white shadow-lg rounded-2xl p-12 text-center border border-gray-200">
+            <div className="text-6xl mb-4">📖</div>
+            <p className="text-gray-600 text-lg font-medium">No learning plans yet</p>
+            <p className="text-gray-500 text-sm mt-2">Create your first plan to start your learning journey!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {learningPlans.map((plan) => (
               <div
                 key={plan.id}
-                className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow relative"
+                className="bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 relative border border-gray-200 group hover:-translate-y-1"
               >
                 <div onClick={() => navigate(`/plan/${plan.id}`)} className="cursor-pointer">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{plan.title}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
-                  <div className="flex justify-between items-center text-xs text-gray-500">
-                    <span>{plan.ownerId === currentUser.uid ? 'Owner' : 'Member'}</span>
-                    <span>{plan.createdAt && new Date(plan.createdAt.toDate()).toLocaleDateString()}</span>
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition duration-200">{plan.title}</h3>
+                    <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${plan.ownerId === currentUser.uid ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                      {plan.ownerId === currentUser.uid ? '👑 Owner' : '👥 Member'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">{plan.description}</p>
+                  <div className="flex items-center text-xs text-gray-500">
+                    <span>📅 {plan.createdAt && new Date(plan.createdAt.toDate()).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <div className="mt-4 pt-4 border-t">
+                <div className="mt-4 pt-4 border-t border-gray-100">
                   {plan.ownerId === currentUser.uid ? (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeletePlan(plan.id);
                       }}
-                      className="w-full px-3 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+                      className="w-full px-3 py-2.5 text-sm bg-red-50 text-red-700 rounded-lg hover:bg-red-600 hover:text-white font-semibold transition duration-200"
                     >
-                      Delete Plan
+                      🗑️ Delete Plan
                     </button>
                   ) : (
                     <button
@@ -281,9 +295,9 @@ const Dashboard = () => {
                         e.stopPropagation();
                         handleLeavePlan(plan.id);
                       }}
-                      className="w-full px-3 py-2 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                      className="w-full px-3 py-2.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-600 hover:text-white font-semibold transition duration-200"
                     >
-                      Leave Plan
+                      👋 Leave Plan
                     </button>
                   )}
                 </div>

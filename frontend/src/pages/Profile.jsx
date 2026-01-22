@@ -130,106 +130,113 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="bg-white shadow-md border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <button
             onClick={() => navigate('/dashboard')}
-            className="text-indigo-600 hover:text-indigo-800 mb-2"
+            className="text-indigo-600 hover:text-indigo-700 font-semibold mb-3 flex items-center space-x-1 transition duration-200"
           >
-            ← Back to Dashboard
+            <span>←</span><span>Back to Dashboard</span>
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
+          <div className="flex items-center space-x-3">
+            <span className="text-3xl">👤</span>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Profile Settings</h1>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Success/Error Messages */}
         {message && (
-          <div className="mb-6 rounded-md bg-green-50 p-4">
-            <p className="text-sm text-green-800">{message}</p>
+          <div className="mb-6 bg-green-50 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded-lg shadow-sm">
+            <p className="font-medium">✅ {message}</p>
           </div>
         )}
-        
+
         {error && (
-          <div className="mb-6 rounded-md bg-red-50 p-4">
-            <p className="text-sm text-red-800">{error}</p>
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
+            <p className="font-medium">⚠️ {error}</p>
           </div>
         )}
 
         {/* Profile Information */}
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile Information</h2>
+        <div className="bg-white shadow-xl rounded-2xl p-8 mb-6 border border-gray-200">
+          <div className="flex items-center space-x-2 mb-6">
+            <span className="text-2xl">⚙️</span>
+            <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
+          </div>
           
-          <form onSubmit={handleUpdateProfile} className="space-y-4">
+          <form onSubmit={handleUpdateProfile} className="space-y-5">
             <div>
-              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-2">
-                Display Name
+              <label htmlFor="displayName" className="block text-sm font-bold text-gray-700 mb-2">
+                📝 Display Name
               </label>
               <input
                 id="displayName"
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
                 placeholder="Your name"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+              <label htmlFor="email" className="block text-sm font-bold text-gray-700 mb-2">
+                ✉️ Email Address
               </label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
                 placeholder="your.email@example.com"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">
-                Changing your email may require re-authentication
+              <p className="mt-2 text-xs text-gray-500">
+                💡 Changing your email may require re-authentication
               </p>
             </div>
 
             <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
-                Bio (Optional)
+              <label htmlFor="bio" className="block text-sm font-bold text-gray-700 mb-2">
+                💬 Bio (Optional)
               </label>
               <textarea
                 id="bio"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 resize-none"
                 placeholder="Tell us about yourself..."
               />
             </div>
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
-              >
-                {loading ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 transform hover:scale-[1.02]"
+            >
+              {loading ? '⏳ Saving...' : '🚀 Save Changes'}
+            </button>
           </form>
         </div>
 
         {/* Password Section */}
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Password</h2>
+        <div className="bg-white shadow-xl rounded-2xl p-8 mb-6 border border-gray-200">
+          <div className="flex items-center space-x-2 mb-6">
+            <span className="text-2xl">🔐</span>
+            <h2 className="text-2xl font-bold text-gray-900">Password</h2>
+          </div>
           
           {!showPasswordForm ? (
             <button
               onClick={() => setShowPasswordForm(true)}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="px-6 py-3 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 font-semibold transition duration-200"
             >
               Change Password
             </button>
@@ -294,7 +301,7 @@ const Profile = () => {
                     setNewPassword('');
                     setConfirmPassword('');
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-6 py-3 border border-gray-300 rounded-xl font-semibold hover:bg-gray-100 transition duration-200"
                 >
                   Cancel
                 </button>
@@ -304,25 +311,26 @@ const Profile = () => {
         </div>
 
         {/* Account Actions */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Account</h2>
+        <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-200">
+          <div className="flex items-center space-x-2 mb-6">
+            <span className="text-2xl">🔑</span>
+            <h2 className="text-2xl font-bold text-gray-900">Account</h2>
+          </div>
           
-          <div className="space-y-3">
-            <div className="flex justify-between items-center py-2">
-              <div>
-                <p className="text-sm font-medium text-gray-900">Account Created</p>
-                <p className="text-sm text-gray-600">
-                  {currentUser?.createdAt && new Date(currentUser.createdAt.toDate()).toLocaleDateString()}
-                </p>
-              </div>
+          <div className="space-y-4">
+            <div className="p-4 bg-gray-50 rounded-xl">
+              <p className="text-sm font-semibold text-gray-700 mb-1">📅 Account Created</p>
+              <p className="text-base text-gray-900 font-medium">
+                {currentUser?.metadata?.creationTime && new Date(currentUser.metadata.creationTime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
             </div>
             
             <div className="border-t pt-4">
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                className="w-full px-6 py-3 bg-red-50 text-red-700 rounded-xl hover:bg-red-600 hover:text-white font-semibold transition duration-200 flex items-center justify-center space-x-2"
               >
-                Sign Out
+                <span>🚪</span><span>Sign Out</span>
               </button>
             </div>
           </div>
