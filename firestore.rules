@@ -24,18 +24,23 @@ service cloud.firestore {
     
     // User Invitations collection (root level)
     match /userInvitations/{invitationId} {
-      // Users can read invitations sent to their email
+      // Allow reading invitations sent to user's email or created by user
       allow read: if isAuthenticated() && 
         (resource.data.invitedEmail == request.auth.token.email || 
          resource.data.invitedByUserId == request.auth.uid);
+      
       // Authenticated users can create invitations
       allow create: if isAuthenticated();
-      // Users can update invitations sent to them
+      
+      // Users can update invitations sent to them or created by them
       allow update: if isAuthenticated() && 
         (resource.data.invitedEmail == request.auth.token.email || 
          resource.data.invitedByUserId == request.auth.uid);
-      // Only creator can delete
-      allow delete: if isAuthenticated() && resource.data.invitedByUserId == request.auth.uid;
+      
+      // Creator (plan owner) or invited user can delete
+      allow delete: if isAuthenticated() && 
+        (resource.data.invitedByUserId == request.auth.uid || 
+         resource.data.invitedEmail == request.auth.token.email);
     }
     
     // Learning Plans collection
@@ -84,6 +89,20 @@ service cloud.firestore {
             get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid ||
             isMember(planId)
           );
+          
+          // Subtasks sub-collection
+          match /subtasks/{subtaskId} {
+            allow read: if isAuthenticated() && (
+              get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid ||
+              isMember(planId)
+            );
+            allow create, delete: if isAuthenticated() && 
+              get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid;
+            allow update: if isAuthenticated() && (
+              get(/databases/$(database)/documents/learningPlans/$(planId)).data.ownerId == request.auth.uid ||
+              isMember(planId)
+            );
+          }
         }
       }
     }
