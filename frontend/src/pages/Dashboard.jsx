@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { collection, query, where, getDocs, doc, updateDoc, addDoc, deleteDoc, setDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, addDoc, deleteDoc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 const Dashboard = () => {
@@ -36,7 +36,7 @@ const Dashboard = () => {
         ...doc.data()
       }));
 
-      // Fetch accepted invitations - use the data stored in invitations
+      // Fetch accepted invitations and get plan details
       const acceptedInvitationsQuery = query(
         collection(db, 'userInvitations'),
         where('invitedEmail', '==', currentUser.email),
@@ -45,16 +45,45 @@ const Dashboard = () => {
       const acceptedSnapshot = await getDocs(acceptedInvitationsQuery);
       console.log('Found accepted invitations:', acceptedSnapshot.docs.length);
       
-      // Use invitation data directly (plan info is stored there)
-      const memberPlans = acceptedSnapshot.docs.map(doc => {
-        const invData = doc.data();
-        return {
-          id: invData.planId,
-          title: invData.planTitle,
-          description: invData.planDescription,
-          ownerId: invData.invitedByUserId
-        };
-      });
+      // Check if plans still exist and filter out deleted ones
+      const memberPlans = [];
+      for (const invDoc of acceptedSnapshot.docs) {
+        const invData = invDoc.data();
+        try {
+          const planRef = doc(db, 'learningPlans', invData.planId);
+          const planDoc = await getDoc(planRef);
+          
+          // Only include if plan still exists
+          if (planDoc.exists()) {
+            const planData = planDoc.data();
+            memberPlans.push({
+              id: invData.planId,
+              title: planData.title,
+              description: planData.description,
+              ownerId: planData.ownerId
+            });
+          } else {
+            // Plan doesn't exist, try to clean up invitation
+            try {
+              await deleteDoc(doc(db, 'userInvitations', invDoc.id));
+              console.log('Cleaned up invitation for deleted plan:', invData.planId);
+            } catch (deleteError) {
+              console.log('Could not delete invitation:', deleteError.message);
+            }
+          }
+        } catch (error) {
+          // If we can't access the plan (deleted or permission issues), try to clean up the invitation
+          console.log('Plan not accessible:', invData.planId, error.code);
+          if (error.code === 'permission-denied' || error.code === 'not-found') {
+            try {
+              await deleteDoc(doc(db, 'userInvitations', invDoc.id));
+              console.log('Cleaned up inaccessible invitation');
+            } catch (deleteError) {
+              console.log('Could not delete invitation:', deleteError.message);
+            }
+          }
+        }
+      }
 
       // Fetch pending invitations
       const invitationsQuery = query(
@@ -133,6 +162,23 @@ const Dashboard = () => {
     }
     
     try {
+      // Delete all invitations created by this user (plan owner) for any plan
+      // Then filter by planId in the client
+      const invitationsQuery = query(
+        collection(db, 'userInvitations'),
+        where('invitedByUserId', '==', currentUser.uid)
+      );
+      const invitationsSnapshot = await getDocs(invitationsQuery);
+      
+      // Filter invitations for this specific plan and delete them
+      const deletePromises = invitationsSnapshot.docs
+        .filter(invDoc => invDoc.data().planId === planId)
+        .map(invDoc => deleteDoc(doc(db, 'userInvitations', invDoc.id)));
+      
+      await Promise.all(deletePromises);
+      console.log('Deleted invitations for plan:', planId);
+      
+      // Delete the plan itself
       await deleteDoc(doc(db, 'learningPlans', planId));
       fetchData();
     } catch (error) {
